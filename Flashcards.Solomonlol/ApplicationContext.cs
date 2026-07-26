@@ -1,5 +1,6 @@
 ﻿using Flashcards.Solomonlol.Model;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace Flashcards.Solomonlol
 {
@@ -8,9 +9,15 @@ namespace Flashcards.Solomonlol
         private readonly string _connectionString;
         public DbSet<Stack> Stacks { get; set; } = null!;
         public DbSet<Flashcard> Flashcards { get; set; }
-        public ApplicationContext(string connectionString)
+        public DbSet<SessionHistory> Sessions { get; set; }
+        public ApplicationContext()
         {
-            _connectionString = connectionString;
+            var configuration = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json")
+                .Build();
+            _connectionString = configuration.GetConnectionString("DefaultConnection");
+            Database.EnsureCreated();
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -27,10 +34,6 @@ namespace Flashcards.Solomonlol
             modelBuilder.Entity<Stack>()
                 .HasIndex(s => s.StackName)
                 .IsUnique();
-            //modelBuilder.Entity<Flashcard>()
-            //    .HasOne(f => f.Stack)
-            //    .WithMany(s => s.flashcards)
-            //    .HasForeignKey(f => new { f.StackID, f.StackName });
         }
     }
 }
