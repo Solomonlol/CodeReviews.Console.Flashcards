@@ -1,2 +1,3 @@
-﻿
-Console.WriteLine("Hello, Flashcards!");
+﻿using Flashcards.Solomonlol.Controllers;
+
+MainMenu.Menu();

@@ -40,7 +40,7 @@ namespace Flashcards.Solomonlol.Data
            await db.Stacks.FindAsync(id);
         }
 
-        public IEnumerable<Stack> GetStackList()
+        public async Task<IEnumerable<Stack>> GetStackList()
         {
             return db.Stacks;
         }

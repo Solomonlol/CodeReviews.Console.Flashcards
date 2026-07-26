@@ -34,6 +34,14 @@ namespace Flashcards.Solomonlol
             modelBuilder.Entity<Stack>()
                 .HasIndex(s => s.StackName)
                 .IsUnique();
+            modelBuilder.Entity<Stack>()
+                .HasMany(s => s.Flashcards)
+                .WithOne(f => f.Stack)
+                .HasForeignKey(f => f.StackID);
+            modelBuilder.Entity<Stack>()
+                .HasMany(s => s.Sessions)
+                .WithOne(f => f.Stack)
+                .HasForeignKey(f => f.StackID);
         }
     }
 }

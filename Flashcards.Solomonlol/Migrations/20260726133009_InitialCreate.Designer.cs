@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Flashcards.Solomonlol.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    [Migration("20260726130134_InitialCreate")]
+    [Migration("20260726133009_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -101,7 +101,7 @@ namespace Flashcards.Solomonlol.Migrations
             modelBuilder.Entity("Flashcards.Solomonlol.Model.Flashcard", b =>
                 {
                     b.HasOne("Flashcards.Solomonlol.Model.Stack", "Stack")
-                        .WithMany()
+                        .WithMany("Flashcards")
                         .HasForeignKey("StackID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -112,12 +112,19 @@ namespace Flashcards.Solomonlol.Migrations
             modelBuilder.Entity("Flashcards.Solomonlol.Model.SessionHistory", b =>
                 {
                     b.HasOne("Flashcards.Solomonlol.Model.Stack", "Stack")
-                        .WithMany()
+                        .WithMany("Sessions")
                         .HasForeignKey("StackID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Stack");
+                });
+
+            modelBuilder.Entity("Flashcards.Solomonlol.Model.Stack", b =>
+                {
+                    b.Navigation("Flashcards");
+
+                    b.Navigation("Sessions");
                 });
 #pragma warning restore 612, 618
         }

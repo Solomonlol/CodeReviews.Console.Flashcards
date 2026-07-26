@@ -6,7 +6,7 @@ namespace Flashcards.Solomonlol.Data
 {
     internal interface IRepository<T> : IDisposable where T : class
     {
-        IEnumerable<T> GetStackList();
+        Task<IEnumerable<T>> GetStackList();
         Task GetStackAsync(int id);
         Task CreateAsync(T item);
         Task UpdateAsync(T item);
