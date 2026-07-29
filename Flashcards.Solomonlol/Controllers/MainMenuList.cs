@@ -1,16 +1,36 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Flashcards.Solomonlol.Controllers
+﻿namespace Flashcards.Solomonlol.Controllers
 {
     public class MainMenuList
     {
-        public Dictionary<string, Action> menuList = new()
+        
+        //StackRepository repository = new(ApplicationContext context = new());
+        public static Dictionary<string, Action> menuList = new()
         {
-            { "Return", () => Console.WriteLine("") },
-            { "Return", () => Console.WriteLine("") }
+            { "Exit", () => Exit() },
+            { "View study sessions", () => Console.WriteLine("Study Sessions") },
+            { "Study", ()=>Console.WriteLine("Study...") },
+            { "Manage stacks", ()=>Console.WriteLine("Stacks") },
+            { "Manage flashcards", ()=>Console.WriteLine("Flashcards") }
         };
-}
+
+        private static void Exit()
+        {
+            Environment.Exit(0);
+        }
+
+        private static void ViewStudySessions()
+        {
+            
+        }
+        private static void ViewStacks()
+        {
+
+        }
+        private static void CreateStack()
+        {
+
+        }
+
+    }
 }
 

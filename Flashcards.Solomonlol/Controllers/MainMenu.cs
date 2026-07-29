@@ -1,23 +1,27 @@
 ﻿using Spectre.Console;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using static Flashcards.Solomonlol.Controllers.MainMenuList;
 
 namespace Flashcards.Solomonlol.Controllers
 {
     internal class MainMenu
     {
+        //MainMenuList menu = new MainMenuList();
+
         public static void Menu()
         {
-            MainMenuList list = new();
             while (true)
             {
-                var choice = AnsiConsole.Prompt(new SelectionPrompt<string>()
-                    .Title("Select an [green]option[/]:")
-                    .AddChoices(list.menuList.Keys));
-
-                list.menuList[choice]();
+                ViewMenu(menuList);
             }
+        }
+
+        private static void ViewMenu(Dictionary<string, Action> dictionary)
+        {
+            var choice = AnsiConsole.Prompt(new SelectionPrompt<string>()
+                    .Title("Select an [green]option[/]:")
+                    .AddChoices(dictionary.Keys));
+
+            dictionary[choice]();
         }
     }
 }

@@ -1,12 +1,16 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Flashcards.Solomonlol.Model
 {
     internal class Flashcard
     {
+        [Key]
         public int? Id { get; set; } = null;
-        public string Question { get; set; }
-        public string Answer { get; set; }
+        [Required]
+        public string Question { get; set; } = string.Empty;
+        [Required]
+        public string Answer { get; set; } = string.Empty;
 
         public int StackID { get; set; }
 

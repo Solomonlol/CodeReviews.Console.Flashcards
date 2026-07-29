@@ -1,12 +1,19 @@
-﻿namespace Flashcards.Solomonlol.Model
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Flashcards.Solomonlol.Model
 {
     internal class Stack
     {
-        //public List<Flashcard>? flashcards;
-        //public List<SessionHistory>? sessions;
+        [Key]
         public int Id {  get; set; }
-        public string StackName { get; set; }
-        public ICollection<Flashcard> Flashcards { get; set; }
-        public ICollection<SessionHistory> Sessions { get; set; }
+        [Required]
+        [MaxLength(50)]
+        public string StackName { get; set; } = string.Empty;
+        public ICollection<Flashcard> Flashcards { get; set; } = new List<Flashcard>();
+        public ICollection<SessionHistory> Sessions { get; set; } = new List<SessionHistory>();
+        public Stack(string name)
+        {
+            StackName = name;
+        }
     }
 }
