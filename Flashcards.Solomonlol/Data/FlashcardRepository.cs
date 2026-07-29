@@ -1,6 +1,7 @@
 ﻿using Flashcards.Solomonlol.Interfaces;
 using Flashcards.Solomonlol.Model;
 using Microsoft.EntityFrameworkCore;
+using Spectre.Console;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -27,6 +28,7 @@ namespace Flashcards.Solomonlol.Data
             {
                 _db.Flashcards.Remove(item);
             }
+            else AnsiConsole.MarkupLine($"[red]Flashcard with id={id} was not found.[/]");
         }
 
         public async Task UpdateAsync(Flashcard item, CancellationToken cancellationToken = default)

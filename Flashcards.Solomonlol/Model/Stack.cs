@@ -11,6 +11,8 @@ namespace Flashcards.Solomonlol.Model
         public string StackName { get; set; } = string.Empty;
         public ICollection<Flashcard> Flashcards { get; set; } = new List<Flashcard>();
         public ICollection<SessionHistory> Sessions { get; set; } = new List<SessionHistory>();
+        public Stack()
+        { }
         public Stack(string name)
         {
             StackName = name;

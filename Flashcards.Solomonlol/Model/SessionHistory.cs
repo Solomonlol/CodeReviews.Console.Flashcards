@@ -6,7 +6,7 @@ namespace Flashcards.Solomonlol.Model
     internal class SessionHistory
     {
         [Key]
-        public int? Id { get; set; } = null;
+        public int Id { get; set; }
         public DateOnly Date {  get; set; }
         public TimeOnly Time { get; set; }
         public int Score { get; set; }

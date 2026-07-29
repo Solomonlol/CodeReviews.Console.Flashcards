@@ -2,12 +2,14 @@
 
 namespace Flashcards.Solomonlol.Controllers
 {
-    internal class Controller
+    internal class MainController
     {
         UnitOfWork unitOfWork;
-        public Controller()
+        public MainController()
         {
             unitOfWork = new UnitOfWork();
         }
+
+
     }
 }

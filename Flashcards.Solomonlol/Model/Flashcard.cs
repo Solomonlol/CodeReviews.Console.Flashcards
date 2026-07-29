@@ -6,7 +6,7 @@ namespace Flashcards.Solomonlol.Model
     internal class Flashcard
     {
         [Key]
-        public int? Id { get; set; } = null;
+        public int Id { get; set; }
         [Required]
         public string Question { get; set; } = string.Empty;
         [Required]

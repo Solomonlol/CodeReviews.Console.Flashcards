@@ -1,4 +1,4 @@
 ﻿using Flashcards.Solomonlol.Controllers;
 
-
-MainMenu.Menu();
+MainMenu menu = new MainMenu();
+await menu.Menu();

@@ -1,36 +1,23 @@
-﻿namespace Flashcards.Solomonlol.Controllers
+﻿using Flashcards.Solomonlol.Services;
+using Spectre.Console;
+
+namespace Flashcards.Solomonlol.Controllers
 {
     public class MainMenuList
     {
         
-        //StackRepository repository = new(ApplicationContext context = new());
-        public static Dictionary<string, Action> menuList = new()
-        {
-            { "Exit", () => Exit() },
-            { "View study sessions", () => Console.WriteLine("Study Sessions") },
-            { "Study", ()=>Console.WriteLine("Study...") },
-            { "Manage stacks", ()=>Console.WriteLine("Stacks") },
-            { "Manage flashcards", ()=>Console.WriteLine("Flashcards") }
-        };
+        public Dictionary<string, Action> MainMenu {  get; set; }
+        public Dictionary<string, Action> StackMenu { get; set; }
+        public Dictionary<string, Action> FlashcardsMenu { get; set; }
+        //public Dictionary<string, Action> SessionsMenu { get; set; }
 
-        private static void Exit()
+        public MainMenuList(Dictionary<string, Action> main, Dictionary<string, Action> stack, Dictionary<string, Action> flashcards)
         {
-            Environment.Exit(0);
+            MainMenu = main;
+            StackMenu = stack;
+            FlashcardsMenu = flashcards;
+            //SessionsMenu = sessions;
         }
-
-        private static void ViewStudySessions()
-        {
-            
-        }
-        private static void ViewStacks()
-        {
-
-        }
-        private static void CreateStack()
-        {
-
-        }
-
     }
 }
 
