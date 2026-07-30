@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Flashcards.Solomonlol.Data
 {
-    internal class StackRepository : IRepository<Stack>
+    internal class StackRepository : IStackRepository
     {
         private ApplicationContext _db;
         public StackRepository(ApplicationContext context)
@@ -16,9 +16,9 @@ namespace Flashcards.Solomonlol.Data
             await _db.Stacks.AddAsync(stack, cancellationToken);
         }
 
-        public async Task DeleteAsync(int id, CancellationToken cancellationToken = default)
+        public async Task DeleteAsync(string name, CancellationToken cancellationToken = default)
         {
-            Stack stack = await _db.Stacks.FindAsync(id, cancellationToken);
+            Stack? stack = await _db.Stacks.FirstOrDefaultAsync(stack => stack.Name == name);
             if(stack!=null)
             {
                 _db.Stacks.Remove(stack);
@@ -39,6 +39,11 @@ namespace Flashcards.Solomonlol.Data
         public async Task<IEnumerable<Stack>> GetListAsync(CancellationToken cancellationToken = default)
         {
             return await _db.Stacks.ToListAsync(cancellationToken);
+        }
+
+        public async Task<Stack?> GetByNameAsync(string name, CancellationToken cancellationToken = default)
+        {
+            return await _db.Stacks.FirstOrDefaultAsync(stack=>stack.Name==name);
         }
     }
 }

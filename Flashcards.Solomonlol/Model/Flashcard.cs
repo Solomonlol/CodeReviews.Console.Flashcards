@@ -7,9 +7,13 @@ namespace Flashcards.Solomonlol.Model
     {
         [Key]
         public int Id { get; set; }
+
         [Required]
+        [MaxLength(100)]
         public string Question { get; set; } = string.Empty;
+
         [Required]
+        [MaxLength(100)]
         public string Answer { get; set; } = string.Empty;
 
         public int StackID { get; set; }

@@ -8,14 +8,14 @@ namespace Flashcards.Solomonlol.Model
         public int Id {  get; set; }
         [Required]
         [MaxLength(50)]
-        public string StackName { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
         public ICollection<Flashcard> Flashcards { get; set; } = new List<Flashcard>();
         public ICollection<SessionHistory> Sessions { get; set; } = new List<SessionHistory>();
         public Stack()
         { }
         public Stack(string name)
         {
-            StackName = name;
+            Name = name;
         }
     }
 }

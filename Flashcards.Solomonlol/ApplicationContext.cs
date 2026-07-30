@@ -32,7 +32,7 @@ namespace Flashcards.Solomonlol
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Stack>()
-                .HasIndex(s => s.StackName)
+                .HasIndex(s => s.Name)
                 .IsUnique();
 
             modelBuilder.Entity<Flashcard>()

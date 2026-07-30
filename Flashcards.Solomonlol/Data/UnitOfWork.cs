@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Spectre.Console;
+using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -33,7 +34,7 @@ namespace Flashcards.Solomonlol.Data
 
         public async Task Save()
         {
-            await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync();
         }
 
         private bool _disposed = false;

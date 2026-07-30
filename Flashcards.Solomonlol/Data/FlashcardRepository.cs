@@ -9,7 +9,7 @@ using System.Text;
 
 namespace Flashcards.Solomonlol.Data
 {
-    internal class FlashcardRepository : IRepository<Flashcard>
+    internal class FlashcardRepository// : IStackRepository<Flashcard>
     {
         private ApplicationContext _db;
         public FlashcardRepository(ApplicationContext context)
@@ -45,5 +45,19 @@ namespace Flashcards.Solomonlol.Data
             return await _db.Flashcards.ToListAsync(cancellationToken);
         }
 
+        public async Task<IEnumerable<Flashcard>> GetListByStackIdAsync(int id, CancellationToken cancellationToken = default)
+        {
+            return await _db.Flashcards.Where(s=>s.StackID == id).ToListAsync(cancellationToken);
+        }
+
+        //public async Task<IEnumerable<Flashcard>> GetListByStackNameAsync(string name, CancellationToken cancellationToken = default)
+        //{
+        //    return await _db.Flashcards.
+        //}
+
+        public async Task<Flashcard?> GetByNameAsync(string name, CancellationToken cancellationToken = default)
+        {
+            return await _db.Flashcards.FirstOrDefaultAsync(f => f.Question == name);
+        }
     }
 }
