@@ -9,6 +9,7 @@ namespace Flashcards.Solomonlol.Controllers
     {
         private readonly StackService stackService = new();
         private readonly FlashcardService flashcardService = new();
+        private readonly SessionService sessionService = new();
         private readonly Dictionary<string, Func<Task>> _mainMenu;
         private readonly Dictionary<string, Func<Task>> _stackMenu;
         private readonly Dictionary<string, Func<Task>> _flashcardsMenu;
@@ -27,8 +28,8 @@ namespace Flashcards.Solomonlol.Controllers
             {
                 { "Back", () => Task.CompletedTask },
                 { "Create new stack", () => CreateStack() },
-                { "Update stack by id", () => UpdateStack() },
-                { "Delete stack by id", () => DeleteStack() }
+                { "Update stack", () => UpdateStack() },
+                { "Delete stack", () => DeleteStack() }
             };
             _flashcardsMenu = new()
             {
@@ -135,7 +136,23 @@ namespace Flashcards.Solomonlol.Controllers
 
         private async Task ViewStudySessionsData()
         {
-
+            AnsiConsole.Clear();
+            var list = await sessionService.GetListAsync();
+            if(list.Any())
+            {
+                var table = new Table();
+                table.AddColumns("Date", "Time", "Score");
+                foreach (var item in list)
+                {
+                    table.AddRow($"{item.Date}", $"{item.Time}", $"{item.Score}");
+                }
+            }
+            else
+            {
+                AnsiConsole.MarkupLine("[red]No session history was found.[/]");
+                AnsiConsole.MarkupLine("Press any key to continue...");
+                Console.ReadKey();
+            }
         }
 
         private async Task ViewAllStack()

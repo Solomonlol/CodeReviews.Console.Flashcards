@@ -6,7 +6,7 @@ using Spectre.Console;
 
 namespace Flashcards.Solomonlol.Services
 {
-    internal class SessionsService : ISessionService
+    internal class SessionService : ISessionService
     {
         public async Task CreateAsync(DateTime dateTime, int score, string stackName, CancellationToken cancellationToken = default)
         {
