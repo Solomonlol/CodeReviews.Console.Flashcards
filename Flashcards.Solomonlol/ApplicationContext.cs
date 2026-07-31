@@ -36,7 +36,7 @@ namespace Flashcards.Solomonlol
                 .IsUnique();
 
             modelBuilder.Entity<Flashcard>()
-                .HasIndex(s => s.Question)
+                .HasIndex(s => new { s.Question, s.StackID })
                 .IsUnique();
 
             modelBuilder.Entity<Flashcard>()

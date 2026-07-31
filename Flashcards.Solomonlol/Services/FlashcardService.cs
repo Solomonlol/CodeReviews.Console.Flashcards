@@ -1,71 +1,151 @@
 ﻿using Flashcards.Solomonlol.Data;
 using Flashcards.Solomonlol.Interfaces;
 using Flashcards.Solomonlol.Model;
-using Flashcards.Solomonlol.Model.Dto;
 using Spectre.Console;
 
 namespace Flashcards.Solomonlol.Services
 {
-    internal class FlashcardService// : IFlashcardService
+    internal class FlashcardService : IFlashcardService
     {
-        private readonly UnitOfWork _unitOfWork;
         public FlashcardService()
         {
-            _unitOfWork = new UnitOfWork();
         }
-        public async Task CreateAsync(int stackId, FlashcardDto fDto, CancellationToken cancellationToken = default)
+        public async Task CreateAsync(string stackName, string question, string answer, CancellationToken cancellationToken = default)
         {
-            try
+            using (UnitOfWork _unitOfWork = new UnitOfWork())
             {
-                var checkFlashcard = await _unitOfWork.Flashcards.GetByNameAsync(fDto.Question);
-                if (checkFlashcard == null)
+                try
                 {
-                    if (fDto.Question != null && fDto.Question.Length <= 100)
+
+                    var checkFlashcard = await _unitOfWork.Stacks.GetByNameAsync(stackName);
+                    if (checkFlashcard != null)
                     {
-                        var flashcard = new Flashcard()
+                        if (question != null && question.Length <= 100)
                         {
-                            Question = fDto.Question,
-                            Answer = fDto.Answer,
-                            StackID = stackId,
-                        };
-                        await _unitOfWork.Flashcards.CreateAsync(flashcard, cancellationToken);
+                            var flashcard = new Flashcard()
+                            {
+                                Question = question,
+                                Answer = answer,
+                                StackID = checkFlashcard.Id,
+                            };
+                            await _unitOfWork.Flashcards.CreateAsync(flashcard, cancellationToken);
+                        }
+                        else throw new Exception("Flashcard questions and answers is required with length <= 100.");
                     }
-                    else throw new Exception("Flashcard questions and answers is required with length <= 100");
+                    else throw new Exception($"Stack with name [red]{stackName}[/] doesn't exists.");
                 }
-                else throw new Exception($"Stack with name [red]{fDto.Question}[/] already exists");
-            }
-            catch (Exception ex)
-            {
-                ExeptionMessage(ex);
-            }
-            finally
-            {
-                await SaveAsync(cancellationToken);
+                catch (Exception ex)
+                {
+                    ExceptionMessage(ex);
+                }
+                finally
+                {
+                    await SaveAsync(_unitOfWork, cancellationToken);
+                }
             }
         }
 
         public async Task DeleteAsync(int id, CancellationToken cancellationToken = default)
         {
-            try
+            using (UnitOfWork _unitOfWork = new UnitOfWork())
             {
-                var flashcard = await _unitOfWork.Flashcards.GetByIdAsync(id);
-                if (flashcard != null)
+                try
                 {
-                    await _unitOfWork.Flashcards.DeleteAsync(id, cancellationToken);
+
+                    var flashcard = await _unitOfWork.Flashcards.GetByIdAsync(id);
+                    if (flashcard != null)
+                    {
+                        await _unitOfWork.Flashcards.DeleteAsync(id, cancellationToken);
+                    }
+                    else throw new Exception("Flashcard id was not found.");
+
                 }
-                else throw new Exception("Flashcard id was not found");
+                catch (Exception ex)
+                {
+                    ExceptionMessage(ex);
+                }
+                finally
+                {
+                    await SaveAsync(_unitOfWork, cancellationToken);
+                }
             }
-            catch (Exception ex)
+        
+        }
+
+        public async Task UpdateAsync(string stackName, int flashcardId , CancellationToken cancellationToken = default)
+        {
+            using (UnitOfWork _unitOfWork = new UnitOfWork())
             {
-                ExeptionMessage(ex);
-            }
-            finally
-            {
-                await SaveAsync(cancellationToken);
+                try
+                {
+                    var stackCheck = await _unitOfWork.Stacks.GetByNameAsync(stackName);
+                    if (stackCheck != null)
+                    {
+                        var flashcard = await _unitOfWork.Flashcards.GetByIdAsync(flashcardId);
+                        if (flashcard != null)
+                        {
+                            var question = AnsiConsole.Prompt(new TextPrompt<string>("Type new question:"));
+                            var checkQuestion = await _unitOfWork.Flashcards.GetByQuestionAsync(stackCheck.Id, question);
+                            if (checkQuestion == null)
+                            {
+                                var answer = AnsiConsole.Prompt(new TextPrompt<string>("Type new answer:"));
+
+                                flashcard.Question = question;
+                                flashcard.Answer = answer;
+
+                                await _unitOfWork.Flashcards.UpdateAsync(flashcard);
+                            }
+                            else throw new Exception("Flashcard in this stack with that exact question is exists.");
+                        }
+                        else throw new Exception("Flashcard was not found.");
+                        
+                    }
+                    else throw new Exception($"Stack with name {stackName} was not found.");
+
+                }
+                catch (Exception ex)
+                {
+                    ExceptionMessage(ex);
+                }
+                finally
+                {
+                    await SaveAsync(_unitOfWork, cancellationToken);
+                }
             }
         }
 
-        public async Task SaveAsync(CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<Flashcard>> GetListByStackNameAsync(string stackName, CancellationToken cancellationToken = default)
+        {
+            using (UnitOfWork _unitOfWork = new UnitOfWork())
+            {
+                var check = await _unitOfWork.Stacks.GetByNameAsync(stackName, cancellationToken);
+                if (check != null)
+                {
+                    return await _unitOfWork.Flashcards.GetListByStackIdAsync(check.Id);
+                }
+                else throw new Exception($"Stack with name {stackName} doesn't exists.");
+            }
+        }
+
+        public async Task<Flashcard> GetByStackNameAsync(string stackName, int flashId, CancellationToken cancellationToken = default)
+        {
+            using (UnitOfWork _unitOfWork = new UnitOfWork())
+            {
+                var check = await _unitOfWork.Stacks.GetByNameAsync(stackName, cancellationToken);
+                if(check!=null)
+                {
+                    var flashcard = await _unitOfWork.Flashcards.GetByFlashAndStackIdAsync(check.Id, flashId);
+                    if (flashcard != null)
+                    {
+                        return flashcard;
+                    }
+                    else throw new Exception("Flashcard doesn't exists.");
+                }
+                else throw new Exception($"Stack with name {stackName} doesn't exists.");
+            }
+        }
+
+        public async Task SaveAsync(UnitOfWork _unitOfWork, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -73,46 +153,11 @@ namespace Flashcards.Solomonlol.Services
             }
             catch (Exception ex)
             {
-                ExeptionMessage(ex);
+                ExceptionMessage(ex);
             }
         }
 
-        public async Task UpdateAsync(int id, CancellationToken cancellationToken = default)
-        {
-            try
-            {
-                var flashcard = await _unitOfWork.Flashcards.GetByIdAsync(id);
-                if (flashcard != null)
-                {
-                    var question = AnsiConsole.Prompt(new TextPrompt<string>("Type new question"));
-                    var checkFlashcard = await _unitOfWork.Flashcards.GetByNameAsync(question);
-                    if (checkFlashcard == null)
-                    {
-                        var answer = AnsiConsole.Prompt(new TextPrompt<string>("Type new answer"));
-                        flashcard.Question = question;
-                        flashcard.Answer = answer;
-                        await _unitOfWork.Flashcards.UpdateAsync(flashcard);
-                    }
-                    else throw new Exception($"Flashcard already exists");
-                }
-                else throw new Exception("Stack id was not found");
-            }
-            catch (Exception ex)
-            {
-                ExeptionMessage(ex);
-            }
-            finally
-            {
-                await SaveAsync(cancellationToken);
-            }
-        }
-
-        public async Task<IEnumerable<Flashcard>> GetListByStackIdAsync(int id, CancellationToken cancellationToken = default)
-        {
-            return await _unitOfWork.Flashcards.GetListByStackIdAsync(id);
-        }
-
-        private void ExeptionMessage(Exception ex)
+        private void ExceptionMessage(Exception ex)
         {
 
             AnsiConsole.MarkupLine($"[red]{ex.Message}[/]");
@@ -120,12 +165,5 @@ namespace Flashcards.Solomonlol.Services
             Console.ReadKey();
             AnsiConsole.Clear();
         }
-
-        //public async Task<IEnumerable<FlashcardDto>> GetFlashcardsFromStackNameAsync(string stackName, CancellationToken cancellationToken = default)
-        //{
-        //    var flashcard = await _unitOfWork.Stacks.
-        //    FlashcardDto dto = new FlashcardDto(flashcard);
-        //    re
-        //}
     }
 }
