@@ -11,6 +11,7 @@ namespace Flashcards.Solomonlol.Data
         private ApplicationContext _context = new ApplicationContext();
         private StackRepository _stackRepository;
         private FlashcardRepository _flashcardRepository;
+        private SessionRepository _sessionRepository;
 
         public StackRepository Stacks
         {
@@ -29,6 +30,16 @@ namespace Flashcards.Solomonlol.Data
                 if (_flashcardRepository == null)
                     _flashcardRepository = new FlashcardRepository(_context);
                 return _flashcardRepository;
+            }
+        }
+
+        public SessionRepository Sessions
+        {
+            get
+            {
+                if (_sessionRepository == null)
+                    _sessionRepository = new SessionRepository(_context);
+                return _sessionRepository;
             }
         }
 

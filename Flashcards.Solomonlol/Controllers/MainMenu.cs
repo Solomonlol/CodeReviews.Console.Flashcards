@@ -160,7 +160,7 @@ namespace Flashcards.Solomonlol.Controllers
             }
         }
 
-        private async Task ViewAllFlashcardsByStack(string? name = null, IEnumerable<Flashcard>? list = null)
+        private async Task ViewAllFlashcardsByStack(string? name = null, IEnumerable<FlashcardDto>? list = null)
         {
             try
             {

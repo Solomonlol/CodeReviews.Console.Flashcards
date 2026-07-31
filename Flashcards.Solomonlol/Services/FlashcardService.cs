@@ -1,6 +1,7 @@
 ﻿using Flashcards.Solomonlol.Data;
 using Flashcards.Solomonlol.Interfaces;
 using Flashcards.Solomonlol.Model;
+using Flashcards.Solomonlol.Model.Dto;
 using Spectre.Console;
 
 namespace Flashcards.Solomonlol.Services
@@ -51,14 +52,12 @@ namespace Flashcards.Solomonlol.Services
             {
                 try
                 {
-
                     var flashcard = await _unitOfWork.Flashcards.GetByIdAsync(id);
                     if (flashcard != null)
                     {
                         await _unitOfWork.Flashcards.DeleteAsync(id, cancellationToken);
                     }
                     else throw new Exception("Flashcard id was not found.");
-
                 }
                 catch (Exception ex)
                 {
@@ -114,20 +113,26 @@ namespace Flashcards.Solomonlol.Services
             }
         }
 
-        public async Task<IEnumerable<Flashcard>> GetListByStackNameAsync(string stackName, CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<FlashcardDto>> GetListByStackNameAsync(string stackName, CancellationToken cancellationToken = default)
         {
             using (UnitOfWork _unitOfWork = new UnitOfWork())
             {
                 var check = await _unitOfWork.Stacks.GetByNameAsync(stackName, cancellationToken);
                 if (check != null)
                 {
-                    return await _unitOfWork.Flashcards.GetListByStackIdAsync(check.Id);
+                    var list = await _unitOfWork.Flashcards.GetListByStackIdAsync(check.Id);
+                    var dtoList = new List<FlashcardDto>();
+                    foreach (var item in list)
+                    {
+                        dtoList.Add(new FlashcardDto(item));
+                    }
+                    return dtoList;
                 }
                 else throw new Exception($"Stack with name {stackName} doesn't exists.");
             }
         }
 
-        public async Task<Flashcard> GetByStackNameAsync(string stackName, int flashId, CancellationToken cancellationToken = default)
+        public async Task<FlashcardDto> GetByStackNameAsync(string stackName, int flashId, CancellationToken cancellationToken = default)
         {
             using (UnitOfWork _unitOfWork = new UnitOfWork())
             {
@@ -135,9 +140,11 @@ namespace Flashcards.Solomonlol.Services
                 if(check!=null)
                 {
                     var flashcard = await _unitOfWork.Flashcards.GetByFlashAndStackIdAsync(check.Id, flashId);
+                    
                     if (flashcard != null)
                     {
-                        return flashcard;
+                        var flashcardDto = new FlashcardDto(flashcard);
+                        return flashcardDto;
                     }
                     else throw new Exception("Flashcard doesn't exists.");
                 }

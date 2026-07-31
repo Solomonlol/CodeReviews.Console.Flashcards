@@ -9,5 +9,15 @@ namespace Flashcards.Solomonlol.Model.Dto
         public DateOnly Date {  get; set; }
         public TimeOnly Time { get; set; }
         public int Score { get; set; }
+
+        public SessionDto()
+        { }
+
+        public SessionDto(SessionHistory item)
+        { 
+            Date = item.Date;
+            Time = item.Time;
+            Score = item.Score;
+        }
     }
 }

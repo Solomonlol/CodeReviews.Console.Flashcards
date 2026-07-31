@@ -16,11 +16,12 @@ namespace Flashcards.Solomonlol.Model
         public Stack Stack { get; set; } = null!;
         public SessionHistory()
         { }
-        public SessionHistory(DateOnly date, TimeOnly time, int score)
+        public SessionHistory(DateTime dateTime, int score, int stackId)
         {
-            Date = date;
-            Time = time;
+            Date = DateOnly.FromDateTime(dateTime);
+            Time = TimeOnly.FromDateTime(dateTime);
             Score = score;
+            StackID = stackId;
         }
     }
 }
