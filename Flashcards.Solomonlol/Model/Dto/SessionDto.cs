@@ -15,8 +15,8 @@ namespace Flashcards.Solomonlol.Model.Dto
 
         public SessionDto(SessionHistory item)
         { 
-            Date = item.Date;
-            Time = item.Time;
+            Date = DateOnly.FromDateTime(item.Date);
+            Time = TimeOnly.FromDateTime(item.Date);
             Score = item.Score;
         }
     }

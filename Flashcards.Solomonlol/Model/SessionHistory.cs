@@ -7,8 +7,7 @@ namespace Flashcards.Solomonlol.Model
     {
         [Key]
         public int Id { get; set; }
-        public DateOnly Date {  get; set; }
-        public TimeOnly Time { get; set; }
+        public DateTime Date {  get; set; }
         public int Score { get; set; }
         public int StackID { get; set; }
 
@@ -18,8 +17,7 @@ namespace Flashcards.Solomonlol.Model
         { }
         public SessionHistory(DateTime dateTime, int score, int stackId)
         {
-            Date = DateOnly.FromDateTime(dateTime);
-            Time = TimeOnly.FromDateTime(dateTime);
+            Date = dateTime;
             Score = score;
             StackID = stackId;
         }

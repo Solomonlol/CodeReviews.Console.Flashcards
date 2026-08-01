@@ -2,6 +2,7 @@
 using Flashcards.Solomonlol.Model.Dto;
 using Flashcards.Solomonlol.Services;
 using Spectre.Console;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Flashcards.Solomonlol.Controllers
 {
@@ -112,8 +113,7 @@ namespace Flashcards.Solomonlol.Controllers
             }
             catch (Exception ex)
             {
-                AnsiConsole.MarkupLine($"[red]{ex.Message}[/]");
-                Console.ReadKey();
+                Message(ex.Message);
             }
         }
             
@@ -131,7 +131,50 @@ namespace Flashcards.Solomonlol.Controllers
 
         private async Task Study()
         {
-            await ViewAllStack();
+            if (AnsiConsole.Confirm("Start new study session?"))
+            {
+                DateTime dateTime = DateTime.Now;
+                int score = 0;
+                var list = await stackService.GetStackListAsync();
+
+                await ViewAllStack(list);
+
+                if (list.Any())
+                {
+                    var name = AnsiConsole.Prompt(
+                                            new SelectionPrompt<string>()
+                                            .Title("Enter stack name to [green]study.[/]")
+                                            .AddChoices(list.Select(s => s.Name)));
+                    var listOfFlashcards = await flashcardService.GetListByStackNameAsync(name);
+
+                    if (listOfFlashcards.Any())
+                    {
+                        await ViewAllFlashcardsByStack(name, listOfFlashcards, showAnswer: false);
+                        var selected = AnsiConsole.Prompt(
+                                        new MultiSelectionPrompt<string>()
+                                        .Title("Which [green]flashcards[/] do you want to study?")
+                                        .AddChoices(listOfFlashcards.Select(s => s.Question).ToArray()));
+                        
+                        for(int i=0;i<selected.Count; i++)
+                        {
+                            var answer = AnsiConsole.Prompt(
+                                     new TextPrompt<string>($"Enter answer to question: [green]{selected[i]}[/]"));
+                            var correctAnswer = listOfFlashcards.Where(s => s.Question.ToLower() == selected[i].ToLower()).Select(s => s.Answer).First(); 
+                            if (answer.ToLower().Equals(correctAnswer.ToLower()))
+                            {
+                                score++;
+                            }
+                            else AnsiConsole.MarkupLine($"Answer is [red]incorrect.[/] Correct answer is " +
+                                $"[green]{correctAnswer}[/]");
+                        }
+                        Message($"Your study session is finished. Your total score: {score}");
+                        await sessionService.CreateAsync(dateTime, score, name);
+                    }
+                    else Message("This stack has no flashcards.");
+                }
+                else Message("No stacks was found.");
+            }
+            
         }
 
         private async Task ViewStudySessionsData()
@@ -146,19 +189,21 @@ namespace Flashcards.Solomonlol.Controllers
                 {
                     table.AddRow($"{item.Date}", $"{item.Time}", $"{item.Score}");
                 }
+                Message();
             }
             else
             {
-                AnsiConsole.MarkupLine("[red]No session history was found.[/]");
-                AnsiConsole.MarkupLine("Press any key to continue...");
-                Console.ReadKey();
+                Message("No session history was found.");
             }
         }
 
-        private async Task ViewAllStack()
+        private async Task ViewAllStack(IEnumerable<Stack>? list = null)
         {
             AnsiConsole.Clear();
-            var list = await stackService.GetStackListAsync();
+            if (list == null)
+            {
+                list = await stackService.GetStackListAsync();
+            }
             if (list.Any())
             {
                 var table = new Table();
@@ -171,13 +216,11 @@ namespace Flashcards.Solomonlol.Controllers
             }
             else
             {
-                AnsiConsole.MarkupLine("[red]No stacks was found.[/]");
-                AnsiConsole.MarkupLine("Press any key to continue...");
-                Console.ReadKey();
+                Message("No stacks was found.");
             }
         }
 
-        private async Task ViewAllFlashcardsByStack(string? name = null, IEnumerable<FlashcardDto>? list = null)
+        private async Task ViewAllFlashcardsByStack(string? name = null, IEnumerable<FlashcardDto>? list = null, bool showAnswer=true)
         {
             try
             {
@@ -195,29 +238,46 @@ namespace Flashcards.Solomonlol.Controllers
                 if (list.Any())
                 {
                     var table = new Table();
-                    table.AddColumns("Id", "Question", "Answer");
+                    if (showAnswer)
+                        table.AddColumns("Id", "Question", "Answer");
+                    else table.AddColumns("Id", "Question");
                     int i = 1;
                     foreach (var item in list)
                     {
-                        table.AddRow($"{i}", $"{item.Question}", $"{item.Answer}");
+                        if (showAnswer)
+                        {
+                            table.AddRow($"{i}", $"{item.Question}", $"{item.Answer}");
+                        }
+                        else table.AddRow($"{i}", $"{item.Question}");
                         i++;
                     }
                     AnsiConsole.Write(table);
-                    AnsiConsole.MarkupLine("Press any key to continue...");
-                    Console.ReadKey();
+                    Message();
                 }
                 else
                 {
-                    AnsiConsole.MarkupLine("[red]No flashcards was found.[/]");
-                    AnsiConsole.MarkupLine("Press any key to continue...");
-                    Console.ReadKey();
+                    Message("No flashcards was found.");
                 }
             }
             catch (Exception ex)
             {
-                AnsiConsole.MarkupLine($"[red]{ex.Message}[/]");
-                Console.ReadKey();
+                Message(ex.Message);
             }
+        }
+
+        private void BuildTable(Table table, string[] columns)
+        {
+            table.AddColumns(columns);
+        }
+
+        private void Message(string? message = null)
+        {
+            if (message != null)
+            {
+                AnsiConsole.MarkupLine($"[red]{message}[/]");
+            }
+            AnsiConsole.MarkupLine("Press any key to continue...");
+            Console.ReadKey();
         }
 
         private Task Exit()
