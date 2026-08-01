@@ -21,7 +21,7 @@ namespace Flashcards.Solomonlol.Services
                     var checkFlashcard = await _unitOfWork.Stacks.GetByNameAsync(stackName);
                     if (checkFlashcard != null)
                     {
-                        if (question != null && question.Length <= 100)
+                        if (question != null && question.Length <= 100 && answer.Length<=100)
                         {
                             var flashcard = new Flashcard()
                             {
