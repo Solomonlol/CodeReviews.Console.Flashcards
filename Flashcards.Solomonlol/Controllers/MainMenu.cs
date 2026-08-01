@@ -67,25 +67,38 @@ namespace Flashcards.Solomonlol.Controllers
 
         private async Task CreateFlashcard()
         {
-            string stackName = AnsiConsole.Prompt(
-                         new TextPrompt<string>("Enter the [green]name of the stack[/] to which the flashcard belongs."));
-            string question = AnsiConsole.Prompt(
-                        new TextPrompt<string>("Enter stack [green]Question[/]:"));
-            string answer = AnsiConsole.Prompt(
-                        new TextPrompt<string>("Enter stack [green]Answer[/]:"));
-            
-            await flashcardService.CreateAsync(stackName, question, answer);
+            var list = await stackService.GetStackListAsync();
+            if (list.Any())
+            {
+                var stackName = AnsiConsole.Prompt(new SelectionPrompt<string>()
+                                                .Title("Enter the [green]name of the stack[/] to which the flashcard belongs.")
+                                                .AddChoices(list.Select(s => s.Name)));
+
+                string question = AnsiConsole.Prompt(
+                            new TextPrompt<string>("Enter stack [green]Question[/]:"));
+                string answer = AnsiConsole.Prompt(
+                            new TextPrompt<string>("Enter stack [green]Answer[/]:"));
+
+                await flashcardService.CreateAsync(stackName, question, answer);
+            }
+            else Message("No stacks was found.");
         }
 
 
         private async Task UpdateStack()
         {
-            string name = AnsiConsole.Prompt(
-                         new TextPrompt<string>("Enter stack name to [red]update[/]"));
-            if (AnsiConsole.Confirm("Are you shure?"))
+            var list = await stackService.GetStackListAsync();
+            if (list.Any())
             {
-                await stackService.UpdateAsync(name);
+                var name = AnsiConsole.Prompt(new SelectionPrompt<string>()
+                                                .Title("Enter stack name to [red]update.[/]")
+                                                .AddChoices(list.Select(s => s.Name)));
+                if (AnsiConsole.Confirm("Are you sure?"))
+                {
+                    await stackService.UpdateAsync(name);
+                }
             }
+            else Message("No stacks was found.");
         }
 
         private async Task UpdateFlashcard()
@@ -93,23 +106,29 @@ namespace Flashcards.Solomonlol.Controllers
             try
             {
                 await ViewAllStack();
-
-                string stackName = AnsiConsole.Prompt(
-                             new TextPrompt<string>("Enter stack name to [red]update[/]"));
-                var check = await stackService.GetStackByNameAsync(stackName);
-                var list = await flashcardService.GetListByStackNameAsync(stackName);
-
-                await ViewAllFlashcardsByStack(stackName, list);
-
-                int idInList = AnsiConsole.Prompt(
-                         new TextPrompt<int>("Enter the [green]ID of the flashcard[/] to update."));
-
-                if (idInList < list.Count() && idInList > 0)
+                var stackList = await stackService.GetStackListAsync();
+                if (stackList.Any())
                 {
-                    int id = list.ElementAt(idInList - 1).Id;
-                    await flashcardService.UpdateAsync(stackName, id);
+                    var stackName = AnsiConsole.Prompt(new SelectionPrompt<string>()
+                                                    .Title("Enter stack name to [red]update.[/]")
+                                                    .AddChoices(stackList.Select(s => s.Name)));
+
+                    var flashcardList = await flashcardService.GetListByStackNameAsync(stackName);
+
+                    await ViewAllFlashcardsByStack(stackName, flashcardList);
+
+                    var questionInList = AnsiConsole.Prompt(new SelectionPrompt<string>()
+                                                    .Title("Enter the [green]flashcard[/] to update.")
+                                                    .AddChoices(flashcardList.Select(s=>s.Question)));
+                    int idInList = flashcardList.ToList().FindIndex(f => f.Question == questionInList);
+                    if (idInList < flashcardList.Count() && idInList >= 0)
+                    {
+                        int id = flashcardList.ElementAt(idInList).Id;
+                        await flashcardService.UpdateAsync(stackName, id);
+                    }
+                    else throw new Exception("Wrong id input.");
                 }
-                else throw new Exception("Wrong id input.");
+                else throw new Exception("No stacks was found.");
             }
             catch (Exception ex)
             {
@@ -121,12 +140,19 @@ namespace Flashcards.Solomonlol.Controllers
 
         private async Task DeleteStack()
         {
-            string name = AnsiConsole.Prompt(
-                         new TextPrompt<string>("Enter stack name to [red]delete[/]"));
-            if (AnsiConsole.Confirm("Are you shure?"))
+            var list = await stackService.GetStackListAsync();
+            if (list.Any())
             {
-                await stackService.DeleteAsync(name);
+                var name = AnsiConsole.Prompt(new SelectionPrompt<string>()
+                                                .Title("Enter stack name to [red]delete.[/]")
+                                                .AddChoices(list.Select(s => s.Name)));
+
+                if (AnsiConsole.Confirm("Are you sure?"))
+                {
+                    await stackService.DeleteAsync(name);
+                }
             }
+            else Message("No stacks was found.");
         }
 
         private async Task Study()
@@ -162,6 +188,7 @@ namespace Flashcards.Solomonlol.Controllers
                             var correctAnswer = listOfFlashcards.Where(s => s.Question.ToLower() == selected[i].ToLower()).Select(s => s.Answer).First(); 
                             if (answer.ToLower().Equals(correctAnswer.ToLower()))
                             {
+                                AnsiConsole.MarkupLine($"Answer is [green]correct.[/]");
                                 score++;
                             }
                             else AnsiConsole.MarkupLine($"Answer is [red]incorrect.[/] Correct answer is " +
@@ -174,7 +201,6 @@ namespace Flashcards.Solomonlol.Controllers
                 }
                 else Message("No stacks was found.");
             }
-            
         }
 
         private async Task ViewStudySessionsData()
@@ -189,6 +215,7 @@ namespace Flashcards.Solomonlol.Controllers
                 {
                     table.AddRow($"{item.Date}", $"{item.Time}", $"{item.Score}");
                 }
+                AnsiConsole.Write(table);
                 Message();
             }
             else
@@ -225,49 +252,52 @@ namespace Flashcards.Solomonlol.Controllers
             try
             {
                 AnsiConsole.Clear();
-                if (name == null)
+                var stackList = await stackService.GetStackListAsync();
+                if (stackList.Any())
                 {
-                    await ViewAllStack();
-                    name = AnsiConsole.Prompt(
-                                 new TextPrompt<string>("Enter stack name to [red]which the flashcard belongs.[/]"));
-                }
-                if (list == null)
-                {
-                    list = await flashcardService.GetListByStackNameAsync(name);
-                }
-                if (list.Any())
-                {
-                    var table = new Table();
-                    if (showAnswer)
-                        table.AddColumns("Id", "Question", "Answer");
-                    else table.AddColumns("Id", "Question");
-                    int i = 1;
-                    foreach (var item in list)
+                    if (name == null)
                     {
-                        if (showAnswer)
-                        {
-                            table.AddRow($"{i}", $"{item.Question}", $"{item.Answer}");
-                        }
-                        else table.AddRow($"{i}", $"{item.Question}");
-                        i++;
+                        await ViewAllStack();
+
+                        name = AnsiConsole.Prompt(
+                                                new SelectionPrompt<string>()
+                                                .Title("Enter stack name to [red]which the flashcard belongs.[/]")
+                                                .AddChoices(stackList.Select(s => s.Name)));
                     }
-                    AnsiConsole.Write(table);
-                    Message();
+                    if (list == null)
+                    {
+                        list = await flashcardService.GetListByStackNameAsync(name);
+                    }
+                    if (list.Any())
+                    {
+                        var table = new Table();
+                        if (showAnswer)
+                            table.AddColumns("Id", "Question", "Answer");
+                        else table.AddColumns("Id", "Question");
+                        int i = 1;
+                        foreach (var item in list)
+                        {
+                            if (showAnswer)
+                            {
+                                table.AddRow($"{i}", $"{item.Question}", $"{item.Answer}");
+                            }
+                            else table.AddRow($"{i}", $"{item.Question}");
+                            i++;
+                        }
+                        AnsiConsole.Write(table);
+                        Message();
+                    }
+                    else
+                    {
+                        Message("No flashcards was found.");
+                    }
                 }
-                else
-                {
-                    Message("No flashcards was found.");
-                }
+                else Message("No stacks was found.");
             }
             catch (Exception ex)
             {
                 Message(ex.Message);
             }
-        }
-
-        private void BuildTable(Table table, string[] columns)
-        {
-            table.AddColumns(columns);
         }
 
         private void Message(string? message = null)
