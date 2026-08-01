@@ -55,7 +55,7 @@ namespace Flashcards.Solomonlol.Services
                     var flashcard = await _unitOfWork.Flashcards.GetByIdAsync(id);
                     if (flashcard != null)
                     {
-                        await _unitOfWork.Flashcards.DeleteAsync(id, cancellationToken);
+                        await _unitOfWork.Flashcards.DeleteAsync(flashcard, cancellationToken);
                     }
                     else throw new Exception("Flashcard id was not found.");
                 }

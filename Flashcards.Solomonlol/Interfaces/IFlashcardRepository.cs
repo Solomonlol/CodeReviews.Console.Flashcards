@@ -9,6 +9,6 @@ namespace Flashcards.Solomonlol.Interfaces
         Task<Flashcard?> GetByQuestionAsync(int stackId, string question, CancellationToken cancellationToken = default);
         Task CreateAsync(Flashcard item, CancellationToken cancellationToken = default);
         Task UpdateAsync(Flashcard item, CancellationToken cancellationToken = default);
-        Task DeleteAsync(int id, CancellationToken cancellationToken = default);
+        Task DeleteAsync(Flashcard item, CancellationToken cancellationToken = default);
     }
 }

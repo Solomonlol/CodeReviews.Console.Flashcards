@@ -1,7 +1,6 @@
 ﻿using Flashcards.Solomonlol.Interfaces;
 using Flashcards.Solomonlol.Model;
 using Microsoft.EntityFrameworkCore;
-using Spectre.Console;
 
 namespace Flashcards.Solomonlol.Data
 {
@@ -17,14 +16,9 @@ namespace Flashcards.Solomonlol.Data
             await _db.Flashcards.AddAsync(item, cancellationToken);
         }
 
-        public async Task DeleteAsync(int id, CancellationToken cancellationToken = default)
+        public async Task DeleteAsync(Flashcard item, CancellationToken cancellationToken = default)
         {
-            var item = await _db.Flashcards.FindAsync(id, cancellationToken);
-            if (item != null)
-            {
-                _db.Flashcards.Remove(item);
-            }
-            else AnsiConsole.MarkupLine($"[red]Flashcard with id={id} was not found.[/]");
+             _db.Flashcards.Remove(item);
         }
 
         public async Task UpdateAsync(Flashcard item, CancellationToken cancellationToken = default)
