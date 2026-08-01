@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Flashcards.Solomonlol.Model.Dto
+﻿namespace Flashcards.Solomonlol.Model.Dto
 {
     internal class SessionDto
     {

@@ -1,10 +1,4 @@
-﻿using Spectre.Console;
-using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using System.Text;
-
-namespace Flashcards.Solomonlol.Data
+﻿namespace Flashcards.Solomonlol.Data
 {
     internal class UnitOfWork : IDisposable
     {

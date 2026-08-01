@@ -2,7 +2,6 @@
 using Flashcards.Solomonlol.Model.Dto;
 using Flashcards.Solomonlol.Services;
 using Spectre.Console;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Flashcards.Solomonlol.Controllers
 {

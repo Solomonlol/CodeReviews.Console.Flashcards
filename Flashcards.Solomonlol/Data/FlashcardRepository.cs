@@ -2,10 +2,6 @@
 using Flashcards.Solomonlol.Model;
 using Microsoft.EntityFrameworkCore;
 using Spectre.Console;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Flashcards.Solomonlol.Data
 {
